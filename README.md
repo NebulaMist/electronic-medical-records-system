@@ -230,7 +230,7 @@ npm run build
 
 ## 作者信息
 
-- 开发者：黄云
+- 开发者：星云
 - 项目类型：设计课程作品
 - 技术支持：Vue.js + Element Plus生态
 
@@ -238,10 +238,4 @@ npm run build
 
 本项目仅用于学习和教学目的。
 
----
 
-*电子病案管理系统 - 现代化医疗信息管理解决方案*
-=======
-# electronic-medical-records-system
-基于Vue.js和Element Plus的电子病案管理系统"
->>>>>>> 7f0d1924c6726c517c350eea1d5a97e9a843e410
