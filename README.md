@@ -230,7 +230,7 @@ npm run build
 
 ## 作者信息
 
-- 开发者：林勇
+- 开发者：黄云
 - 项目类型：设计课程作品
 - 技术支持：Vue.js + Element Plus生态
 
