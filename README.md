@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 电子病案管理系统
 
 ## 项目简介
@@ -231,3 +232,7 @@ npm run build
 ---
 
 *电子病案管理系统 - 现代化医疗信息管理解决方案*
+=======
+# electronic-medical-records-system
+基于Vue.js和Element Plus的电子病案管理系统"
+>>>>>>> 7f0d1924c6726c517c350eea1d5a97e9a843e410
