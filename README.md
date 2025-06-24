@@ -4,7 +4,15 @@
 ## 项目简介
 
 这是一个基于Vue.js 3和Element Plus的现代化电子病案管理系统，专为医院和医疗机构设计。系统采用纯前端架构，数据存储在浏览器本地，适合作为医疗信息管理的原型系统或教学演示项目。
-![Uploading image.png…]()
+![{E439300F-6065-4F78-BE99-BBD852F300AE}](https://github.com/user-attachments/assets/5a3fa196-391d-4735-bb00-71e7510dde4d)
+![{D25B91FD-C6E0-4610-BF16-62F8E10E50DA}](https://github.com/user-attachments/assets/c59dc97e-01b9-4249-830b-3bf0540292dc)
+![{9A24104E-CAB1-4C5C-9FE8-073B26F63CE8}](https://github.com/user-attachments/assets/6aa1c316-85ad-4f87-bdff-cab3ea9245c2)
+![{EC113A25-E3F8-433B-BB70-7FFAB5C68E5D}](https://github.com/user-attachments/assets/9553d9fb-cd4f-44fb-8b50-20dfbb983f00)
+![{F0B7227A-8621-4F61-B963-488DBEBBF751}](https://github.com/user-attachments/assets/61a71605-11a6-4ab3-b8cb-9c4520d87c53)
+![{F88A0AAF-7E07-4963-8970-A8AD29C60D0E}](https://github.com/user-attachments/assets/66501070-b97d-494b-83a6-b133ae5eff60)
+![{E081C32C-0611-460C-9CA9-9222C67EA952}](https://github.com/user-attachments/assets/3795dd69-a90e-4158-a8d9-f861b42afcf3)
+![{9A24104E-CAB1-4C5C-9FE8-073B26F63CE8}](https://github.com/user-attachments/assets/1ae156e6-4729-4df5-8edd-25c32a6b3246)
+
 
 ## 核心特性
 
