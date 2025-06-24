@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>数据验证测试</title>
+</head>
+<body>
+    <h1>电子病案管理系统数据验证</h1>
+    <div id="results"></div>
+    
+    <script type="module">
+        import { DataManager } from './src/utils/dataManager.js'
+        
+        // 初始化数据
+        DataManager.initializeData()
+        
+        // 获取数据
+        const patients = DataManager.getPatients()
+        const records = DataManager.getMedicalRecords()
+        const departments = DataManager.getDepartments()
+        const staff = DataManager.getStaff()
+        
+        // 显示统计信息
+        const results = document.getElementById('results')
+        results.innerHTML = `
+            <h2>数据统计</h2>
+            <p><strong>患者总数:</strong> ${patients.length}</p>
+            <p><strong>病案总数:</strong> ${records.length}</p>
+            <p><strong>科室总数:</strong> ${departments.length}</p>
+            <p><strong>职员总数:</strong> ${staff.length}</p>
+            
+            <h3>科室病案分布</h3>
+            ${getDepartmentStats(records)}
+            
+            <h3>费用统计</h3>
+            <p><strong>总费用:</strong> ¥${getTotalCost(records).toLocaleString()}</p>
+            <p><strong>平均费用:</strong> ¥${getAverageCost(records).toLocaleString()}</p>
+        `
+        
+        function getDepartmentStats(records) {
+            const deptCount = {}
+            records.forEach(record => {
+                const dept = record.department || '未知'
+                deptCount[dept] = (deptCount[dept] || 0) + 1
+            })
+            
+            let html = '<ul>'
+            Object.entries(deptCount).sort((a, b) => b[1] - a[1]).forEach(([dept, count]) => {
+                html += `<li>${dept}: ${count} 个病案</li>`
+            })
+            html += '</ul>'
+            return html
+        }
+        
+        function getTotalCost(records) {
+            return records.reduce((sum, record) => sum + (record.cost || 0), 0)
+        }
+        
+        function getAverageCost(records) {
+            const total = getTotalCost(records)
+            return records.length > 0 ? Math.round(total / records.length) : 0
+        }
+        
+        console.log('患者数据:', patients.slice(0, 3))
+        console.log('病案数据:', records.slice(0, 3))
+    </script>
+</body>
+</html>

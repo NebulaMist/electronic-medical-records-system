@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>localStorage 数据清理工具</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+            color: #856404;
+        }
+        .info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+            color: #0c5460;
+        }
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+            color: #155724;
+        }
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 30px 0;
+        }
+        button {
+            padding: 15px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        button:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+        button:hover:before {
+            left: 100%;
+        }
+        .btn-check { background: #007bff; color: white; }
+        .btn-clear { background: #dc3545; color: white; }
+        .btn-reset { background: #28a745; color: white; }
+        .btn-open { background: #17a2b8; color: white; }
+        button:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,0,0,0.2); }
+        .data-display {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .data-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .data-item:last-child {
+            border-bottom: none;
+        }
+        .data-key {
+            font-weight: bold;
+            color: #495057;
+        }
+        .data-count {
+            background: #e9ecef;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 14px;
+        }
+        .log-area {
+            background: #212529;
+            color: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #007bff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 localStorage 数据清理工具</h1>
+        
+        <div class="warning">
+            <strong>⚠️ 问题诊断：</strong><br>
+            您遇到的问题很可能是因为浏览器localStorage中存储了之前的旧数据。当系统检测到已有数据时，不会重新初始化80个患者的完整数据集，而是使用之前添加的少量测试数据。
+        </div>
+        
+        <div class="info">
+            <strong>💡 解决方案：</strong><br>
+            1. 先检查当前数据状态<br>
+            2. 清除localStorage中的旧数据<br>
+            3. 重新初始化完整的测试数据<br>
+            4. 验证数据是否正确加载
+        </div>
+
+        <div class="button-grid">
+            <button class="btn-check" onclick="checkCurrentData()">
+                🔍 检查当前数据
+            </button>
+            <button class="btn-clear" onclick="clearOldData()">
+                🗑️ 清除旧数据
+            </button>
+            <button class="btn-reset" onclick="initializeNewData()">
+                🚀 重新初始化
+            </button>
+            <button class="btn-open" onclick="openApplication()">
+                🌐 打开应用
+            </button>
+        </div>
+
+        <div id="currentData" class="data-display" style="display: none;">
+            <h3>📊 当前数据统计</h3>
+            <div id="dataStats"></div>
+        </div>
+
+        <div id="logArea" class="log-area">
+            <div id="logContent">🎯 ready> 点击按钮开始操作...</div>
+        </div>
+
+        <div id="successMessage" class="success" style="display: none;">
+            <strong>✅ 操作成功！</strong><span id="successText"></span>
+        </div>
+    </div>
+
+    <script>
+        const logArea = document.getElementById('logContent');
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const icons = { info: '📋', success: '✅', warning: '⚠️', error: '❌' };
+            const icon = icons[type] || '📋';
+            
+            logArea.innerHTML += `<br>${icon} [${timestamp}] ${message}`;
+            logArea.scrollTop = logArea.scrollHeight;
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+
+        function showLoading(elementId) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = '<div class="loading"></div> 处理中...';
+        }
+
+        function hideSuccess() {
+            document.getElementById('successMessage').style.display = 'none';
+        }
+
+        function showSuccess(message) {
+            const successEl = document.getElementById('successMessage');
+            const textEl = document.getElementById('successText');
+            textEl.textContent = message;
+            successEl.style.display = 'block';
+            setTimeout(hideSuccess, 5000);
+        }
+
+        function checkCurrentData() {
+            log('🔍 开始检查localStorage数据...', 'info');
+            hideSuccess();
+
+            try {
+                const dataKeys = ['patients', 'medicalRecords', 'departments', 'staff'];
+                const dataStats = {};
+                let totalItems = 0;
+
+                dataKeys.forEach(key => {
+                    const data = localStorage.getItem(key);
+                    if (data) {
+                        try {
+                            const parsed = JSON.parse(data);
+                            const count = Array.isArray(parsed) ? parsed.length : 0;
+                            dataStats[key] = count;
+                            totalItems += count;
+                            log(`  📁 ${key}: ${count} 条记录`, 'info');
+                        } catch (e) {
+                            dataStats[key] = '数据损坏';
+                            log(`  ❌ ${key}: 数据解析失败`, 'error');
+                        }
+                    } else {
+                        dataStats[key] = 0;
+                        log(`  📂 ${key}: 无数据`, 'warning');
+                    }
+                });
+
+                // 显示数据统计
+                const dataStatsEl = document.getElementById('dataStats');
+                dataStatsEl.innerHTML = Object.entries(dataStats).map(([key, count]) => `
+                    <div class="data-item">
+                        <span class="data-key">${key}</span>
+                        <span class="data-count">${count} 条</span>
+                    </div>
+                `).join('');
+
+                document.getElementById('currentData').style.display = 'block';
+
+                log(`📊 总计: ${totalItems} 条记录`, 'info');
+                
+                if (dataStats.patients < 50) {
+                    log('⚠️ 患者数据不足，建议重新初始化', 'warning');
+                } else {
+                    log('✅ 数据完整性检查通过', 'success');
+                }
+
+            } catch (error) {
+                log(`❌ 检查数据时出错: ${error.message}`, 'error');
+            }
+        }
+
+        function clearOldData() {
+            log('🗑️ 开始清除localStorage旧数据...', 'warning');
+            hideSuccess();
+
+            if (!confirm('⚠️ 确定要清除所有localStorage数据吗？\n\n这将删除所有患者、病案、科室和职员数据！\n\n此操作不可撤销！')) {
+                log('❌ 用户取消了清除操作', 'info');
+                return;
+            }
+
+            try {
+                const keysToRemove = ['patients', 'medicalRecords', 'departments', 'staff'];
+                
+                keysToRemove.forEach(key => {
+                    const hadData = localStorage.getItem(key) !== null;
+                    localStorage.removeItem(key);
+                    log(`  🗑️ 已清除 ${key}${hadData ? ' (有数据)' : ' (无数据)'}`, 'info');
+                });
+
+                // 验证清除结果
+                const remainingData = keysToRemove.some(key => localStorage.getItem(key) !== null);
+                
+                if (remainingData) {
+                    log('❌ 数据清除不完整，请手动检查', 'error');
+                } else {
+                    log('✅ 所有数据已成功清除', 'success');
+                    showSuccess('旧数据已清除，现在可以重新初始化了！');
+                    
+                    // 更新数据显示
+                    setTimeout(checkCurrentData, 1000);
+                }
+
+            } catch (error) {
+                log(`❌ 清除数据时出错: ${error.message}`, 'error');
+            }
+        }
+
+        function initializeNewData() {
+            log('🚀 开始重新初始化数据...', 'info');
+            hideSuccess();
+
+            try {
+                // 这里我们不能直接导入DataManager，因为是静态HTML页面
+                // 需要通过其他方式触发数据初始化
+                
+                log('📝 正在准备初始化脚本...', 'info');
+                
+                // 创建一个动态脚本来执行初始化
+                const script = document.createElement('script');
+                script.type = 'module';
+                script.textContent = `
+                    import { DataManager } from './src/utils/dataManager.js';
+                    
+                    console.log('开始数据初始化...');
+                    DataManager.initializeData();
+                    
+                    const patients = DataManager.getPatients();
+                    const records = DataManager.getMedicalRecords();
+                    const departments = DataManager.getDepartments();
+                    const staff = DataManager.getStaff();
+                    
+                    console.log('初始化完成:', {
+                        patients: patients.length,
+                        records: records.length,
+                        departments: departments.length,
+                        staff: staff.length
+                    });
+                    
+                    // 通知页面初始化完成
+                    window.dispatchEvent(new CustomEvent('dataInitialized', {
+                        detail: { patients: patients.length, records: records.length, departments: departments.length, staff: staff.length }
+                    }));
+                `;
+                  // 监听初始化完成事件
+                window.addEventListener('dataInitialized', function(event) {
+                    const { patients, records, departments, staff } = event.detail;
+                    log('✅ 数据初始化完成!', 'success');
+                    log(`  👥 患者: ${patients} 人`, 'success');
+                    log(`  📋 病案: ${records} 个`, 'success');
+                    log(`  🏥 科室: ${departments} 个`, 'success');
+                    log(`  👨‍⚕️ 职员: ${staff} 人`, 'success');
+                    
+                    if (patients >= 80) {
+                        showSuccess(`完整数据初始化成功！包含${patients}个患者和${records}个病案`);
+                    } else {
+                        log(`⚠️ 患者数量(${patients})可能不足，请检查`, 'warning');
+                    }
+                    
+                    // 更新显示
+                    setTimeout(checkCurrentData, 1000);
+                }, { once: true });
+
+                document.head.appendChild(script);
+                log('📤 初始化脚本已加载', 'info');            } catch (error) {
+                log(`❌ 初始化失败: ${error.message}`, 'error');
+            }
+        }        function openApplication() {
+            log('🌐 正在打开应用程序...', 'info');
+            const url = 'http://localhost:5173/';
+            window.open(url, '_blank');
+            log(`🔗 已在新标签页打开: ${url}`, 'success');
+        }
+
+        // 页面加载时自动检查数据
+        window.addEventListener('load', function() {
+            log('🎯 localStorage清理工具已就绪', 'success');
+            log('📍 当前域: ' + window.location.origin, 'info');
+            setTimeout(checkCurrentData, 500);
+        });        // 错误处理
+        window.addEventListener('error', function(event) {
+            log(`❌ 页面错误: ${event.error?.message || event.message}`, 'error');
+        });
+    </script>
+</body>
+</html>

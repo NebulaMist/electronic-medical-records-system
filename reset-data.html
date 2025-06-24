@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>重置系统数据</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #409EFF;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin: 20px 0;
+            justify-content: center;
+        }
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        .primary { background: #409EFF; color: white; }
+        .danger { background: #F56C6C; color: white; }
+        .success { background: #67C23A; color: white; }
+        .warning { background: #E6A23C; color: white; }
+        button:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .info-box {
+            background: #f0f9ff;
+            border: 1px solid #409EFF;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+            border: 1px solid #e9ecef;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #409EFF;
+        }
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 20px 0;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: Consolas, monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>电子病案管理系统 - 数据重置工具</h1>
+        
+        <div class="info-box">
+            <strong>说明：</strong>此工具用于诊断和解决数据连通性问题。可以检查当前数据状态，清除数据，或重新初始化完整的测试数据。
+        </div>
+        
+        <div class="button-group">
+            <button class="primary" onclick="checkData()">检查当前数据</button>
+            <button class="warning" onclick="forceReset()">强制重置数据</button>
+            <button class="danger" onclick="clearAllData()">清空所有数据</button>
+            <button class="success" onclick="openApp()">打开应用</button>
+        </div>
+        
+        <div class="stats" id="statsContainer">
+            <div class="stat-card">
+                <div class="stat-value" id="patientCount">-</div>
+                <div class="stat-label">患者总数</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="recordCount">-</div>
+                <div class="stat-label">病案总数</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="deptCount">-</div>
+                <div class="stat-label">科室总数</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="staffCount">-</div>
+                <div class="stat-label">职员总数</div>
+            </div>
+        </div>
+        
+        <div class="log" id="logContainer">
+            等待操作...
+        </div>
+    </div>
+
+    <script type="module">
+        import { DataManager } from './src/utils/dataManager.js'
+        
+        let logEl = document.getElementById('logContainer')
+        
+        function log(message) {
+            const time = new Date().toLocaleTimeString()
+            logEl.innerHTML += `[${time}] ${message}<br>`
+            logEl.scrollTop = logEl.scrollHeight
+            console.log(message)
+        }
+        
+        function updateStats() {
+            try {
+                const patients = DataManager.getPatients()
+                const records = DataManager.getMedicalRecords()
+                const departments = DataManager.getDepartments()
+                const staff = DataManager.getStaff()
+                
+                document.getElementById('patientCount').textContent = patients.length
+                document.getElementById('recordCount').textContent = records.length
+                document.getElementById('deptCount').textContent = departments.length
+                document.getElementById('staffCount').textContent = staff.length
+                
+                log(`数据统计更新: 患者 ${patients.length}, 病案 ${records.length}, 科室 ${departments.length}, 职员 ${staff.length}`)
+            } catch (error) {
+                log(`统计更新错误: ${error.message}`)
+            }
+        }
+        
+        window.checkData = function() {
+            log('=== 开始检查数据 ===')
+            
+            try {
+                // 检查localStorage内容
+                const keys = ['patients', 'medicalRecords', 'departments', 'staff']
+                keys.forEach(key => {
+                    const data = localStorage.getItem(key)
+                    if (data) {
+                        const parsed = JSON.parse(data)
+                        log(`${key}: ${parsed.length} 条记录`)
+                        if (parsed.length > 0) {
+                            log(`  示例: ${JSON.stringify(parsed[0]).substring(0, 100)}...`)
+                        }
+                    } else {
+                        log(`${key}: 无数据`)
+                    }
+                })
+                
+                updateStats()
+                log('=== 数据检查完成 ===')
+            } catch (error) {
+                log(`检查数据时出错: ${error.message}`)
+            }
+        }
+        
+        window.forceReset = function() {
+            log('=== 开始强制重置数据 ===')
+            
+            try {
+                // 清除现有数据
+                localStorage.removeItem('patients')
+                localStorage.removeItem('medicalRecords')
+                localStorage.removeItem('departments')
+                localStorage.removeItem('staff')
+                log('已清除现有数据')
+                
+                // 重新初始化
+                DataManager.initializeData()
+                log('已重新初始化数据')
+                
+                updateStats()
+                log('=== 数据重置完成 ===')
+                alert('数据重置完成！请刷新应用页面查看效果。')
+            } catch (error) {
+                log(`重置数据时出错: ${error.message}`)
+                alert(`重置失败: ${error.message}`)
+            }
+        }
+        
+        window.clearAllData = function() {
+            if (confirm('确定要清空所有数据吗？此操作不可撤销！')) {
+                log('=== 开始清空所有数据 ===')
+                
+                try {
+                    localStorage.clear()
+                    log('已清空localStorage')
+                    
+                    updateStats()
+                    log('=== 数据清空完成 ===')
+                    alert('所有数据已清空！')
+                } catch (error) {
+                    log(`清空数据时出错: ${error.message}`)
+                }
+            }
+        }
+        
+        window.openApp = function() {
+            window.open('http://localhost:5173/', '_blank')
+        }
+        
+        // 页面加载时自动检查数据
+        window.addEventListener('load', function() {
+            log('页面加载完成，自动检查数据')
+            checkData()
+        })
+    </script>
+</body>
+</html>
